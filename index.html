@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daniel's Big Decision - Bible Adventure Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #4a90e2, #7b68ee);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h1 {
+            color: #4a90e2;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #4a90e2;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+        }
+
+        .choice-button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        .correct-choice {
+            background: #27ae60;
+        }
+
+        .correct-choice:hover {
+            background: #219a52;
+        }
+
+        .wrong-choice {
+            background: #e74c3c;
+        }
+
+        .wrong-choice:hover {
+            background: #c0392b;
+        }
+
+        .story-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .prayer-box {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+
+        .think-box {
+            background: #d1ecf1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .journal-box {
+            background: #d4edda;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 100px;
+            font-family: Arial, sans-serif;
+            font-size: 1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4a90e2;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .language-toggle {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #333;
+            padding: 10px;
+            display: none;
+            justify-content: space-around;
+        }
+
+        .navbar.show {
+            display: flex;
+        }
+
+        .navbar button {
+            background: transparent;
+            color: white;
+            padding: 10px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+
+        .navbar button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .celebration {
+            text-align: center;
+            font-size: 3em;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.5em; }
+            h2 { font-size: 1.2em; }
+            button { padding: 12px 20px; font-size: 1em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="screen active">
+            <h1 id="gameTitle">Daniel's Big Decision</h1>
+            <p class="subtitle" id="gameSubtitle">A Journey of Faith and Courage</p>
+            <div style="text-align: center; font-size: 4em; margin: 20px 0;">🛡️</div>
+            <input type="text" id="playerName" placeholder="Enter your name to begin">
+            <div style="text-align: center;">
+                <button onclick="startGame()">▶️ <span id="startBtn">Start Journey</span></button>
+            </div>
+            <div class="language-toggle">
+                <button onclick="toggleLanguage()">🌐 <span id="langBtn">Switch to Finnish</span></button>
+            </div>
+            <p style="text-align: center; color: #666; margin-top: 20px;">Ages 11-14</p>
+        </div>
+
+        <!-- Story Introduction -->
+        <div id="introScreen" class="screen">
+            <h2 id="introTitle">The Book of Daniel</h2>
+            <div class="story-box">
+                <p id="introText">The year is 605 BC. You are Daniel, a young Hebrew taken captive to Babylon. Despite being far from home, you must decide whether to follow God's ways or conform to Babylonian culture. Your choices will shape history!</p>
+            </div>
+            <div style="text-align: center;">
+                <button onclick="startChapter1()"><span id="startCh1Btn">Begin Chapter 1: The Food Test</span> →</button>
+            </div>
+        </div>
+
+        <!-- Chapter 1 -->
+        <div id="chapter1Screen" class="screen">
+            <h2 id="ch1Title">Chapter 1: The Food Test</h2>
+            <div class="story-box">
+                <p id="ch1Story">You've been selected to serve in the king's palace! The chief official offers you the royal food and wine. But this food has been offered to idols and goes against God's dietary laws.</p>
+            </div>
+            <div class="think-box">
+                <strong>💭 <span id="thinkLabel">Think About It:</span></strong>
+                <p id="ch1Think">Sometimes doing the right thing means standing out. Daniel chose to honor God even when it meant being different.</p>
+            </div>
+            <div style="margin: 30px 0;">
+                <h3 style="text-align: center;" id="choiceLabel">Make Your Choice:</h3>
+                <button class="choice-button correct-choice" onclick="makeChoice(1, true)">
+                    ✅ <span id="ch1Choice1">Eat vegetables and drink water only</span>
+                </button>
+                <button class="choice-button wrong-choice" onclick="makeChoice(1, false)">
+                    ❌ <span id="ch1Choice2">Eat the king's food to fit in</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chapter 1 Victory -->
+        <div id="ch1VictoryScreen" class="screen">
+            <h2 id="victoryTitle">Victory!</h2>
+            <div class="celebration">🎉✨🏆</div>
+            <div class="story-box">
+                <p id="ch1VictoryText">After 10 days, you look healthier than everyone else! God blessed your faithfulness. The king finds you 10 times wiser than all his magicians!</p>
+            </div>
+            <div class="prayer-box">
+                <strong>🙏 <span id="prayerLabel">Prayer:</span></strong>
+                <p id="ch1Prayer">Lord, give me courage to honor You with my choices, even when it's difficult. Help me trust that Your ways are always best. Amen.</p>
+            </div>
+            <div class="journal-box">
+                <strong>📝 <span id="journalLabel">Your Journal:</span></strong>
+                <p id="ch1JournalPrompt">When have you had to choose between fitting in and following God?</p>
+                <textarea id="journal1" placeholder="Write your thoughts..."></textarea>
+            </div>
+            <div style="text-align: center;">
+                <button onclick="startChapter2()"><span id="nextCh2Btn">Continue to Chapter 2</span> →</button>
+            </div>
+        </div>
+
+        <!-- Chapter 2 -->
+        <div id="chapter2Screen" class="screen">
+            <h2 id="ch2Title">Chapter 2: The Fiery Furnace</h2>
+            <div class="story-box">
+                <p id="ch2Story">King Nebuchadnezzar built a golden statue 90 feet tall! Everyone must bow when the music plays. Your friends Shadrach, Meshach, and Abednego face a terrible choice. The furnace awaits those who refuse!</p>
+            </div>
+            <div class="think-box">
+                <strong>🔥 <span id="thinkLabel2">Think About It:</span></strong>
+                <p id="ch2Think">God doesn't promise to keep us FROM the fire, but He promises to be WITH us IN the fire!</p>
+            </div>
+            <div style="margin: 30px 0;">
+                <h3 style="text-align: center;" id="choiceLabel2">Make Your Choice:</h3>
+                <button class="choice-button correct-choice" onclick="makeChoice(2, true)">
+                    🛡️ <span id="ch2Choice1">Stand firm and refuse to bow</span>
+                </button>
+                <button class="choice-button wrong-choice" onclick="makeChoice(2, false)">
+                    ❌ <span id="ch2Choice2">Bow down to avoid the furnace</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chapter 2 Victory -->
+        <div id="ch2VictoryScreen" class="screen">
+            <h2 id="victoryTitle2">Victory!</h2>
+            <div class="celebration">🔥✨👑</div>
+            <div class="story-box">
+                <p id="ch2VictoryText">Amazing! You walked through the fire unharmed! The king saw a fourth person in the flames - God Himself protected you! Now the king praises your God!</p>
+            </div>
+            <div class="prayer-box">
+                <strong>🙏 <span id="prayerLabel2">Prayer:</span></strong>
+                <p id="ch2Prayer">God, You are the only one worthy of worship. Give me strength to stand for You, even when facing fire. I trust You to be with me always. Amen.</p>
+            </div>
+            <div class="journal-box">
+                <strong>📝 <span id="journalLabel2">Your Journal:</span></strong>
+                <p id="ch2JournalPrompt">What 'golden statues' do people bow to today?</p>
+                <textarea id="journal2" placeholder="Write your thoughts..."></textarea>
+            </div>
+            <div style="text-align: center;">
+                <button onclick="startChapter3()"><span id="nextCh3Btn">Continue to Chapter 3</span> →</button>
+            </div>
+        </div>
+
+        <!-- Chapter 3 -->
+        <div id="chapter3Screen" class="screen">
+            <h2 id="ch3Title">Chapter 3: The Lions' Den</h2>
+            <div class="story-box">
+                <p id="ch3Story">You've become a powerful leader in Babylon. Jealous officials trick the king into making a law: no one can pray to any god except the king for 30 days! The punishment? The lions' den!</p>
+            </div>
+            <div class="think-box">
+                <strong>🦁 <span id="thinkLabel3">Think About It:</span></strong>
+                <p id="ch3Think">Daniel's habit of prayer was so strong that not even death threats could stop him. What habits are you building?</p>
+            </div>
+            <div style="margin: 30px 0;">
+                <h3 style="text-align: center;" id="choiceLabel3">Make Your Choice:</h3>
+                <button class="choice-button correct-choice" onclick="makeChoice(3, true)">
+                    ✅ <span id="ch3Choice1">Continue praying openly to God</span>
+                </button>
+                <button class="choice-button wrong-choice" onclick="makeChoice(3, false)">
+                    ❌ <span id="ch3Choice2">Hide your faith and pray secretly</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chapter 3 Victory -->
+        <div id="ch3VictoryScreen" class="screen">
+            <h2 id="victoryTitle3">Victory!</h2>
+            <div class="celebration">🦁✨🙏</div>
+            <div class="story-box">
+                <p id="ch3VictoryText">God sent His angel to shut the lions' mouths! You spent the night in peace. The king was amazed and declared that everyone should respect your God!</p>
+            </div>
+            <div class="prayer-box">
+                <strong>🙏 <span id="prayerLabel3">Prayer:</span></strong>
+                <p id="ch3Prayer">Father, help me never be ashamed of my faith. Give me Daniel's courage to pray and worship You openly, no matter the cost. Amen.</p>
+            </div>
+            <div class="journal-box">
+                <strong>📝 <span id="journalLabel3">Your Journal:</span></strong>
+                <p id="ch3JournalPrompt">How can you be bold about your faith at school or with friends?</p>
+                <textarea id="journal3" placeholder="Write your thoughts..."></textarea>
+            </div>
+            <div style="text-align: center;">
+                <button onclick="showFinalScreen()"><span id="finishBtn">Complete Your Journey</span> 🎊</button>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="screen">
+            <h2 id="gameOverTitle">Game Over</h2>
+            <div style="text-align: center; font-size: 4em; margin: 20px 0;">😔</div>
+            <div class="story-box">
+                <p id="gameOverText">You chose to compromise your faith. But don't worry - Daniel had to make many hard choices too. Let's try again!</p>
+            </div>
+            <div style="text-align: center;">
+                <button onclick="retryChapter()">🔄 <span id="tryAgainBtn">Try Again</span></button>
+            </div>
+        </div>
+
+        <!-- Final Screen -->
+        <div id="finalScreen" class="screen">
+            <h1 id="completeTitle">Journey Complete!</h1>
+            <div class="celebration">🌟🏆🎉</div>
+            <div class="story-box">
+                <p id="finalMessage">Congratulations! You've completed Daniel's journey. Like Daniel, you can stand strong in your faith when facing difficult choices.</p>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalChoices">0</div>
+                    <div class="stat-label" id="choicesLabel">Choices Made</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">3/3</div>
+                    <div class="stat-label" id="chaptersLabel">Chapters Complete</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="playerNameDisplay">Hero</div>
+                    <div class="stat-label" id="heroLabel">Hero of Faith</div>
+                </div>
+            </div>
+            <div class="think-box">
+                <strong>🎯 <span id="challengeLabel">Your Challenge:</span></strong>
+                <p id="challengeText">This week, pray three times a day like Daniel did. Morning, noon, and evening - even if it's just for one minute each time!</p>
+            </div>
+            <div style="text-align: center;">
+                <button onclick="restartGame()">🔄 <span id="playAgainBtn">Play Again</span></button>
+                <button onclick="downloadProgress()">📥 <span id="downloadBtn">Download Progress</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div id="navbar" class="navbar">
+        <button onclick="goHome()">🏠 <span id="navHome">Home</span></button>
+        <button onclick="showInfo()">ℹ️ <span id="navInfo">Info</span></button>
+        <button onclick="showAbout()">👤 <span id="navAbout">About</span></button>
+    </div>
+
+    <script>
+        // Game state
+        var currentScreen = 'welcome';
+        var currentChapter = 0;
+        var playerName = '';
+        var language = 'en';
+        var choicesMade = 0;
+        var chaptersCompleted = [];
+
+        // Translations
+        var translations = {
+            en: {
+                gameTitle: "Daniel's Big Decision",
+                gameSubtitle: "A Journey of Faith and Courage",
+                startBtn: "Start Journey",
+                langBtn: "Switch to Finnish",
+                introTitle: "The Book of Daniel",
+                introText: "The year is 605 BC. You are Daniel, a young Hebrew taken captive to Babylon. Despite being far from home, you must decide whether to follow God's ways or conform to Babylonian culture. Your choices will shape history!",
+                startCh1Btn: "Begin Chapter 1: The Food Test",
+                ch1Title: "Chapter 1: The Food Test",
+                ch1Story: "You've been selected to serve in the king's palace! The chief official offers you the royal food and wine. But this food has been offered to idols and goes against God's dietary laws.",
+                ch1Think: "Sometimes doing the right thing means standing out. Daniel chose to honor God even when it meant being different.",
+                ch1Choice1: "Eat vegetables and drink water only",
+                ch1Choice2: "Eat the king's food to fit in",
+                ch1VictoryText: "After 10 days, you look healthier than everyone else! God blessed your faithfulness. The king finds you 10 times wiser than all his magicians!",
+                ch1Prayer: "Lord, give me courage to honor You with my choices, even when it's difficult. Help me trust that Your ways are always best. Amen.",
+                ch1JournalPrompt: "When have you had to choose between fitting in and following God?",
+                ch2Title: "Chapter 2: The Fiery Furnace",
+                ch2Story: "King Nebuchadnezzar built a golden statue 90 feet tall! Everyone must bow when the music plays. Your friends Shadrach, Meshach, and Abednego face a terrible choice. The furnace awaits those who refuse!",
+                ch2Think: "God doesn't promise to keep us FROM the fire, but He promises to be WITH us IN the fire!",
+                ch2Choice1: "Stand firm and refuse to bow",
+                ch2Choice2: "Bow down to avoid the furnace",
+                ch2VictoryText: "Amazing! You walked through the fire unharmed! The king saw a fourth person in the flames - God Himself protected you! Now the king praises your God!",
+                ch2Prayer: "God, You are the only one worthy of worship. Give me strength to stand for You, even when facing fire. I trust You to be with me always. Amen.",
+                ch2JournalPrompt: "What 'golden statues' do people bow to today?",
+                ch3Title: "Chapter 3: The Lions' Den",
+                ch3Story: "You've become a powerful leader in Babylon. Jealous officials trick the king into making a law: no one can pray to any god except the king for 30 days! The punishment? The lions' den!",
+                ch3Think: "Daniel's habit of prayer was so strong that not even death threats could stop him. What habits are you building?",
+                ch3Choice1: "Continue praying openly to God",
+                ch3Choice2: "Hide your faith and pray secretly",
+                ch3VictoryText: "God sent His angel to shut the lions' mouths! You spent the night in peace. The king was amazed and declared that everyone should respect your God!",
+                ch3Prayer: "Father, help me never be ashamed of my faith. Give me Daniel's courage to pray and worship You openly, no matter the cost. Amen.",
+                ch3JournalPrompt: "How can you be bold about your faith at school or with friends?",
+                victoryTitle: "Victory!",
+                gameOverTitle: "Game Over",
+                gameOverText: "You chose to compromise your faith. But don't worry - Daniel had to make many hard choices too. Let's try again!",
+                tryAgainBtn: "Try Again",
+                thinkLabel: "Think About It:",
+                choiceLabel: "Make Your Choice:",
+                prayerLabel: "Prayer:",
+                journalLabel: "Your Journal:",
+                nextCh2Btn: "Continue to Chapter 2",
+                nextCh3Btn: "Continue to Chapter 3",
+                finishBtn: "Complete Your Journey",
+                completeTitle: "Journey Complete!",
+                finalMessage: "Congratulations! You've completed Daniel's journey. Like Daniel, you can stand strong in your faith when facing difficult choices.",
+                choicesLabel: "Choices Made",
+                chaptersLabel: "Chapters Complete",
+                heroLabel: "Hero of Faith",
+                challengeLabel: "Your Challenge:",
+                challengeText: "This week, pray three times a day like Daniel did. Morning, noon, and evening - even if it's just for one minute each time!",
+                playAgainBtn: "Play Again",
+                downloadBtn: "Download Progress",
+                navHome: "Home",
+                navInfo: "Info",
+                navAbout: "About"
+            },
+            fi: {
+                gameTitle: "Danielin Suuri Päätös",
+                gameSubtitle: "Uskon ja Rohkeuden Matka",
+                startBtn: "Aloita Matka",
+                langBtn: "Vaihda Englanniksi",
+                introTitle: "Danielin Kirja",
+                introText: "Vuosi on 605 eKr. Olet Daniel, nuori heprealainen vankina Babylonissa. Sinun täytyy päättää, seuraatko Jumalan teitä vai mukaudutko Babylonian kulttuuriin.",
+                startCh1Btn: "Aloita Luku 1: Ruokatesti",
+                ch1Title: "Luku 1: Ruokatesti",
+                ch1Story: "Sinut on valittu palvelemaan kuninkaan palatsissa! Ylipäämies tarjoaa sinulle kuninkaan ruokaa ja viiniä.",
+                ch1Think: "Joskus oikean tekeminen tarkoittaa erottumista.",
+                ch1Choice1: "Syö vain kasviksia ja juo vettä",
+                ch1Choice2: "Syö kuninkaan ruokaa",
+                ch1VictoryText: "10 päivän jälkeen näytät terveemmältä kuin muut! Jumala siunasi uskollisuutesi.",
+                ch1Prayer: "Herra, anna minulle rohkeutta kunnioittaa Sinua. Aamen.",
+                ch1JournalPrompt: "Milloin olet joutunut valitsemaan oikean ja helpon välillä?",
+                ch2Title: "Luku 2: Tulinen Pätsi",
+                ch2Story: "Kuningas Nebukadnessar rakensi kultaisen patsaan! Kaikkien täytyy kumartaa. Pätsi odottaa kieltäytyjiä!",
+                ch2Think: "Jumala on kanssamme tulessa!",
+                ch2Choice1: "Seiso lujana",
+                ch2Choice2: "Kumarra patsasta",
+                ch2VictoryText: "Kävelit tulen läpi vahingoittumattomana! Jumala suojeli sinua!",
+                ch2Prayer: "Jumala, anna minulle voimaa seistä puolestasi. Aamen.",
+                ch2JournalPrompt: "Mitä 'patsaita' ihmiset kumartavat tänään?",
+                ch3Title: "Luku 3: Leijonien Luola",
+                ch3Story: "Olet johtaja Babylonissa. Laki kieltää rukoilemasta muuta kuin kuningasta 30 päivään!",
+                ch3Think: "Danielin rukoustapa oli niin vahva, ettei mikään voinut pysäyttää häntä.",
+                ch3Choice1: "Jatka rukoilemista",
+                ch3Choice2: "Piilota uskosi",
+                ch3VictoryText: "Jumala sulki leijonien suut! Kuningas ylistää Jumalaasi!",
+                ch3Prayer: "Isä, auta minua olemaan rohkea uskossani. Aamen.",
+                ch3JournalPrompt: "Kuinka voit olla rohkea uskossasi?",
+                victoryTitle: "Voitto!",
+                gameOverTitle: "Peli Ohi",
+                gameOverText: "Valitsit tinkiä uskostasi. Yritä uudelleen!",
+                tryAgainBtn: "Yritä Uudelleen",
+                thinkLabel: "Mieti:",
+                choiceLabel: "Tee Valintasi:",
+                prayerLabel: "Rukous:",
+                journalLabel: "Päiväkirjasi:",
+                nextCh2Btn: "Jatka Lukuun 2",
+                nextCh3Btn: "Jatka Lukuun 3",
+                finishBtn: "Suorita Matkasi",
+                completeTitle: "Matka Suoritettu!",
+                finalMessage: "Onnittelut! Olet suorittanut Danielin matkan.",
+                choicesLabel: "Tehdyt Valinnat",
+                chaptersLabel: "Luvut Suoritettu",
+                heroLabel: "Uskon Sankari",
+                challengeLabel: "Haasteesi:",
+                challengeText: "Rukoile kolme kertaa päivässä kuten Daniel!",
+                playAgainBtn: "Pelaa Uudelleen",
+                downloadBtn: "Lataa Edistyminen",
+                navHome: "Koti",
+                navInfo: "Info",
+                navAbout: "Tietoja"
+            }
+        };
+
+        // Initialize game
+        function init() {
+            updateLanguage();
+        }
+
+        // Toggle language
+        function toggleLanguage() {
+            language = language === 'en' ? 'fi' : 'en';
+            updateLanguage();
+        }
+
+        // Update all text based on language
+        function updateLanguage() {
+            var t = translations[language];
+            
+            // Update all text elements
+            document.getElementById('gameTitle').textContent = t.gameTitle;
+            document.getElementById('gameSubtitle').textContent = t.gameSubtitle;
+            document.getElementById('startBtn').textContent = t.startBtn;
+            document.getElementById('langBtn').textContent = t.langBtn;
+            document.getElementById('introTitle').textContent = t.introTitle;
+            document.getElementById('introText').textContent = t.introText;
+            document.getElementById('startCh1Btn').textContent = t.startCh1Btn;
+            document.getElementById('ch1Title').textContent = t.ch1Title;
+            document.getElementById('ch1Story').textContent = t.ch1Story;
+            document.getElementById('ch1Think').textContent = t.ch1Think;
+            document.getElementById('ch1Choice1').textContent = t.ch1Choice1;
+            document.getElementById('ch1Choice2').textContent = t.ch1Choice2;
+            document.getElementById('ch1VictoryText').textContent = t.ch1VictoryText;
+            document.getElementById('ch1Prayer').textContent = t.ch1Prayer;
+            document.getElementById('ch1JournalPrompt').textContent = t.ch1JournalPrompt;
+            document.getElementById('ch2Title').textContent = t.ch2Title;
+            document.getElementById('ch2Story').textContent = t.ch2Story;
+            document.getElementById('ch2Think').textContent = t.ch2Think;
+            document.getElementById('ch2Choice1').textContent = t.ch2Choice1;
+            document.getElementById('ch2Choice2').textContent = t.ch2Choice2;
+            document.getElementById('ch2VictoryText').textContent = t.ch2VictoryText;
+            document.getElementById('ch2Prayer').textContent = t.ch2Prayer;
+            document.getElementById('ch2JournalPrompt').textContent = t.ch2JournalPrompt;
+            document.getElementById('ch3Title').textContent = t.ch3Title;
+            document.getElementById('ch3Story').textContent = t.ch3Story;
+            document.getElementById('ch3Think').textContent = t.ch3Think;
+            document.getElementById('ch3Choice1').textContent = t.ch3Choice1;
+            document.getElementById('ch3Choice2').textContent = t.ch3Choice2;
+            document.getElementById('ch3VictoryText').textContent = t.ch3VictoryText;
+            document.getElementById('ch3Prayer').textContent = t.ch3Prayer;
+            document.getElementById('ch3JournalPrompt').textContent = t.ch3JournalPrompt;
+            document.getElementById('victoryTitle').textContent = t.victoryTitle;
+            document.getElementById('victoryTitle2').textContent = t.victoryTitle;
+            document.getElementById('victoryTitle3').textContent = t.victoryTitle;
+            document.getElementById('gameOverTitle').textContent = t.gameOverTitle;
+            document.getElementById('gameOverText').textContent = t.gameOverText;
+            document.getElementById('tryAgainBtn').textContent = t.tryAgainBtn;
+            document.getElementById('thinkLabel').textContent = t.thinkLabel;
+            document.getElementById('thinkLabel2').textContent = t.thinkLabel;
+            document.getElementById('thinkLabel3').textContent = t.thinkLabel;
+            document.getElementById('choiceLabel').textContent = t.choiceLabel;
+            document.getElementById('choiceLabel2').textContent = t.choiceLabel;
+            document.getElementById('choiceLabel3').textContent = t.choiceLabel;
+            document.getElementById('prayerLabel').textContent = t.prayerLabel;
+            document.getElementById('prayerLabel2').textContent = t.prayerLabel;
+            document.getElementById('prayerLabel3').textContent = t.prayerLabel;
+            document.getElementById('journalLabel').textContent = t.journalLabel;
+            document.getElementById('journalLabel2').textContent = t.journalLabel;
+            document.getElementById('journalLabel3').textContent = t.journalLabel;
+            document.getElementById('nextCh2Btn').textContent = t.nextCh2Btn;
+            document.getElementById('nextCh3Btn').textContent = t.nextCh3Btn;
+            document.getElementById('finishBtn').textContent = t.finishBtn;
+            document.getElementById('completeTitle').textContent = t.completeTitle;
+            document.getElementById('finalMessage').textContent = t.finalMessage;
+            document.getElementById('choicesLabel').textContent = t.choicesLabel;
+            document.getElementById('chaptersLabel').textContent = t.chaptersLabel;
+            document.getElementById('heroLabel').textContent = t.heroLabel;
+            document.getElementById('challengeLabel').textContent = t.challengeLabel;
+            document.getElementById('challengeText').textContent = t.challengeText;
+            document.getElementById('playAgainBtn').textContent = t.playAgainBtn;
+            document.getElementById('downloadBtn').textContent = t.downloadBtn;
+            document.getElementById('navHome').textContent = t.navHome;
+            document.getElementById('navInfo').textContent = t.navInfo;
+            document.getElementById('navAbout').textContent = t.navAbout;
+        }
+
+        // Show a specific screen
+        function showScreen(screenId) {
+            // Hide all screens
+            var screens = document.getElementsByClassName('screen');
+            for (var i = 0; i < screens.length; i++) {
+                screens[i].classList.remove('active');
+            }
+            
+            // Show the selected screen
+            document.getElementById(screenId).classList.add('active');
+            currentScreen = screenId;
+            
+            // Show/hide navbar
+            if (screenId !== 'welcomeScreen') {
+                document.getElementById('navbar').classList.add('show');
+            } else {
+                document.getElementById('navbar').classList.remove('show');
+            }
+        }
+
+        // Start the game
+        function startGame() {
+            playerName = document.getElementById('playerName').value || 'Hero';
+            document.getElementById('playerNameDisplay').textContent = playerName;
+            showScreen('introScreen');
+        }
+
+        // Start chapters
+        function startChapter1() {
+            currentChapter = 1;
+            showScreen('chapter1Screen');
+        }
+
+        function startChapter2() {
+            currentChapter = 2;
+            showScreen('chapter2Screen');
+        }
+
+        function startChapter3() {
+            currentChapter = 3;
+            showScreen('chapter3Screen');
+        }
+
+        // Make a choice
+        function makeChoice(chapter, isCorrect) {
+            choicesMade++;
+            document.getElementById('totalChoices').textContent = choicesMade;
+            
+            if (isCorrect) {
+                if (chapter === 1) {
+                    showScreen('ch1VictoryScreen');
+                } else if (chapter === 2) {
+                    showScreen('ch2VictoryScreen');
+                } else if (chapter === 3) {
+                    showScreen('ch3VictoryScreen');
+                }
+                chaptersCompleted.push(chapter);
+            } else {
+                showScreen('gameOverScreen');
+            }
+        }
+
+        // Retry current chapter
+        function retryChapter() {
+            if (currentChapter === 1) {
+                showScreen('chapter1Screen');
+            } else if (currentChapter === 2) {
+                showScreen('chapter2Screen');
+            } else if (currentChapter === 3) {
+                showScreen('chapter3Screen');
+            }
+        }
+
+        // Show final screen
+        function showFinalScreen() {
+            showScreen('finalScreen');
+        }
+
+        // Restart game
+        function restartGame() {
+            currentChapter = 0;
+            choicesMade = 0;
+            chaptersCompleted = [];
+            document.getElementById('playerName').value = '';
+            document.getElementById('totalChoices').textContent = '0';
+            showScreen('welcomeScreen');
+        }
+
+        // Navigation functions
+        function goHome() {
+            showScreen('welcomeScreen');
+        }
+
+        function showInfo() {
+            alert(language === 'en' ? 
+                'Daniel\'s Big Decision\n\nAn interactive Bible game for youth ages 11-14.\n\nLearn about faith and courage through Daniel\'s story.\n\nCreated by Depths to Heights Ministry.' : 
+                'Danielin Suuri Päätös\n\nInteraktiivinen raamatullinen peli nuorille.\n\nOpi uskosta ja rohkeudesta Danielin tarinan kautta.\n\nLuonut Depths to Heights.');
+        }
+
+        function showAbout() {
+            alert(language === 'en' ? 
+                'About Depths to Heights\n\nCreated by Cleon for ministry purposes.\n\nTeaching youth to stand strong in faith.\n\n© 2024 All rights reserved.' : 
+                'Tietoja\n\nLuonut Cleon.\n\nOpettaa nuorille vahvaa uskoa.\n\n© 2024');
+        }
+
+        // Download progress
+        function downloadProgress() {
+            var data = {
+                playerName: playerName,
+                language: language,
+                choicesMade: choicesMade,
+                chaptersCompleted: chaptersCompleted,
+                journal1: document.getElementById('journal1').value,
+                journal2: document.getElementById('journal2').value,
+                journal3: document.getElementById('journal3').value,
+                date: new Date().toISOString()
+            };
+            
+            var dataStr = JSON.stringify(data, null, 2);
+            var dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            var link = document.createElement('a');
+            link.setAttribute('href', dataUri);
+            link.setAttribute('download', 'daniels-journey-' + playerName + '.json');
+            link.click();
+        }
+
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>
